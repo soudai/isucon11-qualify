@@ -205,11 +205,17 @@ module Isucondition
       system('rm -fr cache/isu/*', out: :err, exception: true)
       system('rm -fr cache/icon/*', out: :err, exception: true)
 
-      isu_list = db.xquery('SELECT jia_isu_uuid FROM isu').to_a
+      isu_list = db.xquery('SELECT jia_isu_uuid,image FROM isu').to_a
       isu_list.each do |isu|
         File.open("cache/isu/#{isu[:jia_isu_uuid]}", "w")
       end
 
+      isu_list.each do |isu|
+        system("mkdir -p cache/icon/#{isu[:jia_isu_uuid]}", out: :err, exception: true)
+        File.open("cache/icon/#{isu[:jia_isu_uuid]}/icon", "w") { |file|
+          file.binwrite(isu[:image])
+        }
+      end
       content_type :json
       { language: 'ruby' }.to_json
     end
