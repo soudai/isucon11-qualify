@@ -39,3 +39,13 @@ CREATE TABLE `isu_association_config` (
   `name` VARCHAR(255) PRIMARY KEY,
   `url` VARCHAR(255) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4;
+
+CREATE VIEW latest_isu_condition AS (
+  SELECT `id`, `jia_isu_uuid`, `timestamp`,
+         `is_sitting`, `condition`, `message`,
+         `created_at`
+  FROM (SELECT *, RANK() OVER (PARTITION BY jia_isu_uuid ORDER BY `timestamp` DESC) AS _rank 
+        FROM isu_condition) AS dummy 
+  WHERE _rank = 1
+);
+
