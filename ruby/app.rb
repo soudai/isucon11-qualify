@@ -371,7 +371,8 @@ module Isucondition
       isu = db.xquery('SELECT `image` FROM `isu` WHERE `jia_user_id` = ? AND `jia_isu_uuid` = ?', jia_user_id, jia_isu_uuid).first
       halt_error 404, 'not found: isu' unless isu
 
-      response.set_header('X-Accel-Redirect', '/files')
+      # 俺の力だとiconを解決できん
+      #response.set_header('X-Accel-Redirect', '/files')
       isu.fetch(:image)
     end
 
