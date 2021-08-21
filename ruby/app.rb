@@ -607,7 +607,7 @@ module Isucondition
         }
       }
 
-      isu_list = db.xquery('SELECT `id`, `jia_isu_uuid`, `name`, `character`, `jia_user_id`, `created_at`, `updated_at` FROM `isu` ORDER BY `character`')
+      isu_list = db.xquery('SELECT isu.`id`, isu.`jia_isu_uuid`, isu.`name`, isu.`character`, isu.`jia_user_id`, isu.`created_at`, isu.`updated_at`, latest_isu_condition.condition, latest_isu_condition.timestamp FROM `isu` JOIN `latest_isu_condition` USING(`jia_isu_uuid`) ORDER BY `character`')
 
       isu_list.each do |isu|
         character ||= isu[:character]
@@ -622,9 +622,8 @@ module Isucondition
           character_critical_isu_conditions = []
         end
 
-        conditions = db.xquery('SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY timestamp DESC LIMIT 1', isu.fetch(:jia_isu_uuid)).to_a
-        unless conditions.empty?
-          isu_last_condition = conditions.first
+        begin
+          isu_last_condition = isu
           condition_level = calculate_condition_level(isu_last_condition.fetch(:condition))
           trend_condition = { isu_id: isu.fetch(:id), timestamp: isu_last_condition.fetch(:timestamp).to_i }
           case condition_level
