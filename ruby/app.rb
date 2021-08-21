@@ -277,9 +277,7 @@ module Isucondition
             "INSERT INTO `isu` (`jia_isu_uuid`, `name`, `image`, `jia_user_id`) VALUES (?, ?, ?, ?)".b,
             jia_isu_uuid.b, isu_name.b, image, jia_user_id.b,
           )
-          File.open("cache/isu/#{jia_isu_uuid.b}", "w") { |file|
-            "set"
-          }
+          File.open("cache/isu/#{jia_isu_uuid.b}", "w")
 
         rescue Mysql2::Error => e
           if e.error_number == MYSQL_ERR_NUM_DUPLICATE_ENTRY
