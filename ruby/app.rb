@@ -236,10 +236,10 @@ module Isucondition
       halt_error 401, 'you are not signed in' unless jia_user_id
 
       response_list = begin
-        isu_list = db.xquery('SELECT `isu`.`id`, `isu`.`jia_isu_uuid`, `isu`.`name`, `isu`.`character`, `isu`.`jia_user_id`, `isu`.`created_at`, `isu`.`updated_at`, `latest_isu_condition`.`timestamp`, `latest_isu_condition`.`is_sitting`, `latest_isu_condition`.`condition`, `latest_isu_condition`.`message` FROM `isu` JOIN `latest_isu_condition` USING(`jia_isu_uuid`) WHERE `isu`.`jia_user_id` = ? ORDER BY `isu`.`id` DESC', jia_user_id)
+        isu_list = db.xquery('SELECT `isu`.`id`, `isu`.`jia_isu_uuid`, `isu`.`name`, `isu`.`character`, `isu`.`jia_user_id`, `isu`.`created_at`, `isu`.`updated_at`, `latest_isu_condition`.`timestamp`, `latest_isu_condition`.`is_sitting`, `latest_isu_condition`.`condition`, `latest_isu_condition`.`message` FROM `isu` LEFT JOIN `latest_isu_condition` USING(`jia_isu_uuid`) WHERE `isu`.`jia_user_id` = ? ORDER BY `isu`.`id` DESC', jia_user_id)
         isu_list.map do |isu|
 
-          formatted_condition = isu ? {
+          formatted_condition = isu.fetch(:condition) ? {
             jia_isu_uuid: isu.fetch(:jia_isu_uuid),
             isu_name: isu.fetch(:name),
             timestamp: isu.fetch(:timestamp).to_i,
