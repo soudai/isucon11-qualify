@@ -282,7 +282,7 @@ module Isucondition
             timestamp: isu.fetch(:timestamp).to_i,
             is_sitting: isu.fetch(:is_sitting),
             condition: isu.fetch(:condition),
-            condition_level: score_to_level(isu.fetch(:score)),
+            condition_level: calculate_condition_level(isu.fetch(:condition)),
             message: isu.fetch(:message),
           } : nil
 
@@ -596,7 +596,7 @@ module Isucondition
       end
 
       conditions_response = conditions.filter_map do |c|
-        c_level = score_to_level(c.fetch(:score))
+        c_level = calculate_condition_level(c.fetch(:condition))
         if condition_level.include?(c_level)
           {
             jia_isu_uuid: c.fetch(:jia_isu_uuid),
