@@ -12,6 +12,24 @@ require 'mysql2-cs-bind'
 require 'newrelic_rpm' if ENV['NEW_RELIC_AGENT_ENABLED']
 # newrelic end
 
+require 'oj'
+
+Oj.mimic_JSON()
+
+using Module.new {
+  refine Hash do
+    def to_json
+      Oj.dump(self)
+    end
+  end
+
+  refine Array do
+    def to_json
+      Oj.dump(self)
+    end
+  end
+}
+
 module Isucondition
   class App < Sinatra::Base
     configure :development do
@@ -221,6 +239,16 @@ module Isucondition
 
       status 200
       ''
+    end
+
+    get '/hoge' do
+      content_type :json
+      { hoge: "fuga" }.to_json
+    end
+
+    get '/fuga' do
+      content_type :json
+      [ :hoge, :fuga ].to_json
     end
 
     # サインインしている自分自身の情報を取得
