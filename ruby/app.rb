@@ -508,14 +508,7 @@ module Isucondition
           end
         end
 
-        case
-        when bad_conditions_count >= 3
-          raw_score += SCORE_CONDITION_LEVEL_CRITICAL
-        when bad_conditions_count >= 1
-          raw_score += SCORE_CONDITION_LEVEL_WARNING
-        else
-          raw_score += SCORE_CONDITION_LEVEL_INFO
-        end
+        raw_score += condition.fetch(:score)
 
         sitting_count += 1 if condition.fetch(:is_sitting)
       end
