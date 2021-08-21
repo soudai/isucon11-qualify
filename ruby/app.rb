@@ -367,7 +367,7 @@ module Isucondition
       date = Time.new(datetime.year, datetime.month, datetime.day, datetime.hour, 0, 0)
 
 
-      res = db_transaction do
+      res = begin
         cnt = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_user_id` = ? AND `jia_isu_uuid` = ?', jia_user_id, jia_isu_uuid).first
         halt_error 404, 'not found: isu' if cnt.fetch(:cnt) == 0
 
