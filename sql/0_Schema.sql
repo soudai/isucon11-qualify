@@ -30,6 +30,7 @@ CREATE TABLE `isu_condition` (
   `is_dirty` tinyint AS (CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(`condition`, ',', 1), ',', -1), '=', -1) = 'true' THEN 1 ELSE 0 END),
   `is_overweight` tinyint AS (CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(`condition`, ',', 2), ',', -1), '=', -1) = 'true' THEN 1 ELSE 0 END),
   `is_broken` tinyint AS (CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(`condition`, ',', 3), ',', -1), '=', -1) = 'true' THEN 1 ELSE 0 END),
+  `score` tinyint AS (CASE is_dirty + is_overweight + is_broken WHEN 3 THEN 1 WHEN 0 THEN 3 ELSE 2 END),
   PRIMARY KEY(`id`),
   INDEX idx_jiaisuuuid_timestamp (`jia_isu_uuid`, `timestamp`),
   INDEX idx_jiaisuuuid (`jia_isu_uuid`)
