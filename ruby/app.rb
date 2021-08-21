@@ -236,17 +236,18 @@ module Isucondition
       halt_error 401, 'you are not signed in' unless jia_user_id
 
       response_list = begin
-        isu_list = db.xquery('SELECT `id`, `jia_isu_uuid`, `name`, `character`, `jia_user_id`, `created_at`, `updated_at`, `timestamp`, `is_sitting`, `condition`, `message` FROM `isu` JOIN `latest_isu_condition` USING(jia_isu_uuid) WHERE `jia_user_id` = ? ORDER BY `isu`.`id` DESC', jia_user_id)
+        isu_list = db.xquery('SELECT `id`, `jia_isu_uuid`, `name`, `character`, `jia_user_id`, `created_at`, `updated_at` FROM `isu` WHERE `jia_user_id` = ? ORDER BY `id` DESC', jia_user_id)
         isu_list.map do |isu|
+          last_condition = db.xquery('SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY `timestamp` DESC LIMIT 1', isu.fetch(:jia_isu_uuid)).first
 
-          formatted_condition = isu ? {
-            jia_isu_uuid: isu.fetch(:jia_isu_uuid),
+          formatted_condition = last_condition ? {
+            jia_isu_uuid: last_condition.fetch(:jia_isu_uuid),
             isu_name: isu.fetch(:name),
-            timestamp: isu.fetch(:timestamp).to_i,
-            is_sitting: isu.fetch(:is_sitting),
-            condition: isu.fetch(:condition),
-            condition_level: calculate_condition_level(isu.fetch(:condition)),
-            message: isu.fetch(:message),
+            timestamp: last_condition.fetch(:timestamp).to_i,
+            is_sitting: last_condition.fetch(:is_sitting),
+            condition: last_condition.fetch(:condition),
+            condition_level: calculate_condition_level(last_condition.fetch(:condition)),
+            message: last_condition.fetch(:message),
           } : nil
 
           {
