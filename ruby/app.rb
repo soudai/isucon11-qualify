@@ -397,12 +397,14 @@ module Isucondition
       res.to_json
     end
 
+    EPOC_TIME = Time.at(0)
+
     # グラフのデータ点を一日分生成
     def generate_isu_graph_response(jia_isu_uuid, graph_date)
       rows = db.xquery('SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY `timestamp` ASC', jia_isu_uuid)
 
       data_points = []
-      start_time_in_this_hour = Time.at(0)
+      start_time_in_this_hour = EPOC_TIME
       conditions_in_this_hour = []
       timestamps_in_this_hour = []
 
