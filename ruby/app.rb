@@ -717,6 +717,8 @@ module Isucondition
       ''
     end
 
+    INDEX_HTML = File.read(File.join(FRONTEND_CONTENTS_PATH, 'index.html'))
+
     %w(
       /
       /register
@@ -726,7 +728,7 @@ module Isucondition
     ).each do |_|
       get _ do
         content_type :html
-        File.read(File.join(FRONTEND_CONTENTS_PATH, 'index.html'))
+        INDEX_HTML
       end
     end
   end
