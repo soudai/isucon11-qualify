@@ -183,9 +183,10 @@ module Isucondition
       )
 
       system('rm -fr cache/isu/*', out: :err, exception: true)
+
       isu_list = db.xquery('SELECT jia_isu_uuid FROM isu').to_a
       isu_list.each do |isu|
-        File.open("cache/isu/#{isu.jia_isu_uuid.b}", "w")
+        File.open("cache/isu/#{isu[:jia_isu_uuid]}", "w")
       end
 
       content_type :json
