@@ -664,7 +664,7 @@ module Isucondition
         end
 
         sql = "INSERT INTO `isu_condition` (`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`) VALUES #{values.join(",")}"
-        puts sql
+        #puts sql
         db.query(sql)
       #end
 
