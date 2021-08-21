@@ -27,6 +27,9 @@ CREATE TABLE `isu_condition` (
   `condition` VARCHAR(255) NOT NULL,
   `message` VARCHAR(255) NOT NULL,
   `created_at` DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
+  `is_dirty` tinyint AS (CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(`condition`, ',', 1), ',', -1), '=', -1) = 'true' THEN 1 ELSE 0 END),
+  `is_overweight` tinyint AS (CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(`condition`, ',', 2), ',', -1), '=', -1) = 'true' THEN 1 ELSE 0 END),
+  `is_broken` tinyint AS (CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(`condition`, ',', 3), ',', -1), '=', -1) = 'true' THEN 1 ELSE 0 END),
   PRIMARY KEY(`id`),
   INDEX idx_jiaisuuuid_timestamp (`jia_isu_uuid`, `timestamp`),
   INDEX idx_jiaisuuuid (`jia_isu_uuid`)
