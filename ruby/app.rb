@@ -136,6 +136,17 @@ module Isucondition
         config[:url]
       end
 
+      def score_to_level(score)
+        case score
+        when 3
+          CONDITION_LEVEL_INFO
+        when 2
+          CONDITION_LEVEL_WARNING
+        else
+          CONDITION_LEVEL_CRITICAL
+        end
+      end
+
       # ISUのコンディションの文字列からコンディションレベルを計算
       def calculate_condition_level(condition)
         idx = -1
@@ -272,7 +283,7 @@ module Isucondition
             timestamp: isu.fetch(:timestamp).to_i,
             is_sitting: isu.fetch(:is_sitting),
             condition: isu.fetch(:condition),
-            condition_level: calculate_condition_level(isu.fetch(:condition)),
+            condition_level: score_to_level(isu.fetch(:score)),
             message: isu.fetch(:message),
           } : nil
 
@@ -584,7 +595,7 @@ module Isucondition
       end
 
       conditions_response = conditions.filter_map do |c|
-        c_level = calculate_condition_level(c.fetch(:condition))
+        c_level = score_to_level(c.fetch(:score))
         if condition_level.include?(c_level)
           {
             jia_isu_uuid: c.fetch(:jia_isu_uuid),
