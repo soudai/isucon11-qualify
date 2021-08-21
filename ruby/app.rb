@@ -53,6 +53,18 @@ module Isucondition
     SCORE_CONDITION_LEVEL_WARNING = 2
     SCORE_CONDITION_LEVEL_CRITICAL = 1
 
+    LEVEL_TO_SCORE = {
+      CONDITION_LEVEL_INFO      => SCORE_CONDITION_LEVEL_INFO,
+      CONDITION_LEVEL_WARNING   => SCORE_CONDITION_LEVEL_WARNING,
+      CONDITION_LEVEL_CRITICAL  => SCORE_CONDITION_LEVEL_CRITICAL,
+    }
+
+    SCORE_TO_LEVEL = {
+      SCORE_CONDITION_LEVEL_INFO      => CONDITION_LEVEL_INFO,
+      SCORE_CONDITION_LEVEL_WARNING   => CONDITION_LEVEL_WARNING,
+      SCORE_CONDITION_LEVEL_CRITICAL  => CONDITION_LEVEL_CRITICAL,
+    }
+
     set :session_secret, 'isucondition'
     set :sessions, key: SESSION_NAME
 
@@ -137,14 +149,7 @@ module Isucondition
       end
 
       def score_to_level(score)
-        case score
-        when 3
-          CONDITION_LEVEL_INFO
-        when 2
-          CONDITION_LEVEL_WARNING
-        else
-          CONDITION_LEVEL_CRITICAL
-        end
+        SCORE_TO_LEVEL[score]
       end
 
       # ISUのコンディションの文字列からコンディションレベルを計算
