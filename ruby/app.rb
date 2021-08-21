@@ -622,11 +622,11 @@ module Isucondition
     # ISUからのコンディションを受け取る
     post '/api/condition/:jia_isu_uuid' do
       # TODO: 一定割合リクエストを落としてしのぐようにしたが、本来は全量さばけるようにすべき
-      drop_probability = 0.9
-      if rand <= drop_probability
-        request.env['rack.logger'].warn 'drop post isu condition request'
-        halt_error 202, ''
-      end
+      # drop_probability = 0.9
+      # if rand <= drop_probability
+      #   request.env['rack.logger'].warn 'drop post isu condition request'
+      #   halt_error 202, ''
+      # end
 
       jia_isu_uuid = params[:jia_isu_uuid]
       halt_error 400, 'missing: jia_isu_uuid' if !jia_isu_uuid || jia_isu_uuid.empty?
