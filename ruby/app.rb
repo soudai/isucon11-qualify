@@ -584,15 +584,17 @@ module Isucondition
 
     # ISUのコンディションをDBから取得
     def get_isu_conditions_from_db(jia_isu_uuid, end_time, condition_level, start_time, limit, isu_name)
+      scores = condition_level.map { |level| LEVEL_TO_SCORE[level] }
+
       conditions = if start_time.to_i == 0
         db.xquery(
-          'SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? AND `timestamp` < ? ORDER BY `timestamp` DESC',
+          "SELECT * FROM `isu_condition` WHERE `score` IN (#{scores.join(",")}) AND `jia_isu_uuid` = ? AND `timestamp` < ? ORDER BY `timestamp` DESC LIMIT #{limit}",
           jia_isu_uuid,
           end_time,
         )
       else
         db.xquery(
-          'SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? AND `timestamp` < ? AND ? <= `timestamp` ORDER BY `timestamp` DESC',
+          "SELECT * FROM `isu_condition` WHERE `score` IN (#{scores.join(",")}) `jia_isu_uuid` = ? AND `timestamp` < ? AND ? <= `timestamp` ORDER BY `timestamp` DESC LIMIT #{limit}",
           jia_isu_uuid,
           end_time,
           start_time,
