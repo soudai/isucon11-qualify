@@ -660,7 +660,7 @@ module Isucondition
           #  cond.fetch(:condition),
           #  cond.fetch(:message),
           #)
-          values << "('#{jia_isu_uuid}','#{timestamp.strftime('%Y-%m-%d %H:%M:%S')}','#{cond[:is_sitting]}','#{cond[:condition]}','#{cond[:message]}')"
+          values << "('#{jia_isu_uuid}','#{timestamp.strftime('%Y-%m-%d %H:%M:%S')}',#{cond[:is_sitting]},'#{cond[:condition]}','#{cond[:message]}')"
         end
 
         sql = "INSERT INTO `isu_condition` (`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`) VALUES #{values.join(",")}"
