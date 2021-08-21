@@ -278,7 +278,7 @@ module Isucondition
       use_default_image = fh.nil?
       image = use_default_image ? File.binread(DEFAULT_ICON_FILE_PATH) : fh.fetch(:tempfile).binmode.read
 
-      isu = begin
+      isu = db_transaction do
         begin
           db.xquery(
             "INSERT INTO `isu` (`jia_isu_uuid`, `name`, `image`, `jia_user_id`) VALUES (?, ?, ?, ?)".b,
