@@ -644,8 +644,8 @@ module Isucondition
       halt_error 400, 'bad request body' if json_params.empty?
 
       #db_transaction do
-      #count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
-      #  halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
+        count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
+        halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
 
         json_params.each do |cond|
           timestamp = Time.at(cond.fetch(:timestamp))
