@@ -691,27 +691,38 @@ module Isucondition
       halt_error 400, 'bad request body' unless json_params.kind_of?(Array)
       halt_error 400, 'bad request body' if json_params.empty?
 
-      begin
-        count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
-        halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
+      count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
+      halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
 
       # fileが無かったら404を返す
       # halt_error 404, 'not found: isu' if ! File.exist?("cache/isu/#{jia_isu_uuid}")
 
-        values = []
-        json_params.each do |cond|
-          timestamp = Time.at(cond.fetch(:timestamp))
-          halt_error 400, 'bad request body' unless valid_condition_format?(cond.fetch(:condition))
+      values = []
+      json_params.each do |cond|
+        timestamp = Time.at(cond.fetch(:timestamp))
+        halt_error 400, 'bad request body' unless valid_condition_format?(cond.fetch(:condition))
 
-          values << "('#{jia_isu_uuid}','#{timestamp.strftime('%Y-%m-%d %H:%M:%S')}',#{cond[:is_sitting]},'#{cond[:condition]}','#{cond[:message]}')"
-        end
+        values << "('#{jia_isu_uuid}','#{timestamp.strftime('%Y-%m-%d %H:%M:%S')}',#{cond[:is_sitting]},'#{cond[:condition]}','#{cond[:message]}')"
+      end
 
+      $threads << Thread.new do
+        Thread.pass
         sql = "INSERT INTO `isu_condition` (`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`) VALUES #{values.join(",")}"
         db.query(sql)
       end
 
       status 202
       ''
+    end
+
+    $threads = []
+
+    Thread.new do
+      while sleep 0.5 do
+        while thread = $threads.shift do
+          thread.join
+        end
+      end
     end
 
     INDEX_HTML = File.read(File.join(FRONTEND_CONTENTS_PATH, 'index.html'))
