@@ -37,7 +37,7 @@ module Isucondition
     set :sessions, key: SESSION_NAME
 
     set :public_folder, FRONTEND_CONTENTS_PATH
-    set :protection, false # IPアドレスでHTTPS接続した場合に一部機能が動かなくなるため無効化
+    set :protection, false  # IPアドレスでHTTPS接続した場合に一部機能が動かなくなるため無効化
 
     POST_ISU_CONDITION_TARGET_BASE_URL = ENV.fetch('POST_ISUCONDITION_TARGET_BASE_URL')
     JIA_JWT_SIGNING_KEY = OpenSSL::PKey::EC.new(File.read(JIA_JWT_SIGNING_KEY_PATH), '')
@@ -100,6 +100,7 @@ module Isucondition
         halt(*args)
       end
 
+
       def user_id_from_session
         jia_user_id = session[:jia_user_id]
         return nil if !jia_user_id || jia_user_id.empty?
@@ -120,7 +121,7 @@ module Isucondition
         idx = -1
         warn_count = 0
         while idx
-          idx = condition.index('=true', idx + 1)
+          idx = condition.index('=true', idx+1)
           warn_count += 1 if idx
         end
 
@@ -155,7 +156,7 @@ module Isucondition
             return false
           end
 
-          if idx_keys < (keys.size - 1)
+          if idx_keys < (keys.size-1)
             return false unless condition_str[idx_cond_str] == ?,
             idx_cond_str += 1
           end
@@ -168,10 +169,10 @@ module Isucondition
     # サービスを初期化
     post '/initialize' do
       jia_service_url = begin
-                          json_params[:jia_service_url]
-                        rescue JSON::ParserError
-                          halt_error 400, 'bad request body'
-                        end
+        json_params[:jia_service_url]
+      rescue JSON::ParserError
+        halt_error 400, 'bad request body'
+      end
       halt_error 400, 'bad request body' unless jia_service_url
 
       system('../sql/init.sh', out: :err, exception: true)
@@ -189,10 +190,10 @@ module Isucondition
     post '/api/auth' do
       req_jwt = request.env['HTTP_AUTHORIZATION']&.delete_prefix('Bearer ')
       token, _headers = begin
-                          JWT.decode(req_jwt, JIA_JWT_SIGNING_KEY, true, algorithm: 'ES256')
-                        rescue JWT::DecodeError
-                          halt_error 403, 'forbidden'
-                        end
+        JWT.decode(req_jwt, JIA_JWT_SIGNING_KEY, true, algorithm: 'ES256')
+      rescue JWT::DecodeError
+        halt_error 403, 'forbidden'
+      end
 
       jia_user_id = token['jia_user_id']
       halt_error 400, 'invalid JWT payload' if !jia_user_id || !jia_user_id.is_a?(String)
@@ -356,6 +357,7 @@ module Isucondition
       datetime = Time.at(Integer(datetime_str)) rescue halt_error(400, 'bad format: datetime')
       date = Time.new(datetime.year, datetime.month, datetime.day, datetime.hour, 0, 0)
 
+
       res = db_transaction do
         cnt = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_user_id` = ? AND `jia_isu_uuid` = ?', jia_user_id, jia_isu_uuid).first
         halt_error 404, 'not found: isu' if cnt.fetch(:cnt) == 0
@@ -424,7 +426,7 @@ module Isucondition
       index = 0
       this_time = graph_date
 
-      while this_time < (graph_date + (3600 * 24))
+      while this_time < (graph_date + (3600*24))
         data = nil
         timestamps = []
         if index < filtered_data_points.size
@@ -543,19 +545,19 @@ module Isucondition
     # ISUのコンディションをDBから取得
     def get_isu_conditions_from_db(jia_isu_uuid, end_time, condition_level, start_time, limit, isu_name)
       conditions = if start_time.to_i == 0
-                     db.xquery(
-                       'SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? AND `timestamp` < ? ORDER BY `timestamp` DESC',
-                       jia_isu_uuid,
-                       end_time,
-                     )
-                   else
-                     db.xquery(
-                       'SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? AND `timestamp` < ? AND ? <= `timestamp` ORDER BY `timestamp` DESC',
-                       jia_isu_uuid,
-                       end_time,
-                       start_time,
-                     )
-                   end
+        db.xquery(
+          'SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? AND `timestamp` < ? ORDER BY `timestamp` DESC',
+          jia_isu_uuid,
+          end_time,
+        )
+      else
+        db.xquery(
+          'SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? AND `timestamp` < ? AND ? <= `timestamp` ORDER BY `timestamp` DESC',
+          jia_isu_uuid,
+          end_time,
+          start_time,
+        )
+      end
 
       conditions_response = conditions.map do |c|
         c_level = calculate_condition_level(c.fetch(:condition))
@@ -605,9 +607,9 @@ module Isucondition
           end
         end
 
-        character_info_isu_conditions.sort! { |a, b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
-        character_warning_isu_conditions.sort! { |a, b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
-        character_critical_isu_conditions.sort! { |a, b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
+        character_info_isu_conditions.sort! { |a,b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
+        character_warning_isu_conditions.sort! { |a,b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
+        character_critical_isu_conditions.sort! { |a,b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
 
         {
           character: character.fetch(:character),
@@ -642,28 +644,28 @@ module Isucondition
       halt_error 400, 'bad request body' if json_params.empty?
 
       #db_transaction do
-      count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
-      halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
+        count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
+        halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
 
-      values = []
-      json_params.each do |cond|
-        timestamp = Time.at(cond.fetch(:timestamp))
-        halt_error 400, 'bad request body' unless valid_condition_format?(cond.fetch(:condition))
+        values = []
+        json_params.each do |cond|
+          timestamp = Time.at(cond.fetch(:timestamp))
+          halt_error 400, 'bad request body' unless valid_condition_format?(cond.fetch(:condition))
 
-        #db.xquery(
-        #  'INSERT INTO `isu_condition` (`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`) VALUES (?, ?, ?, ?, ?)',
-        #  jia_isu_uuid,
-        #  timestamp,
-        #  cond.fetch(:is_sitting),
-        #  cond.fetch(:condition),
-        #  cond.fetch(:message),
-        #)
-        values << "('#{jia_isu_uuid}','#{timestamp.strftime('%Y-%m-%d %H:%M:%S')}',#{cond[:is_sitting]},'#{cond[:condition]}','#{cond[:message]}')"
-      end
+          #db.xquery(
+          #  'INSERT INTO `isu_condition` (`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`) VALUES (?, ?, ?, ?, ?)',
+          #  jia_isu_uuid,
+          #  timestamp,
+          #  cond.fetch(:is_sitting),
+          #  cond.fetch(:condition),
+          #  cond.fetch(:message),
+          #)
+          values << "('#{jia_isu_uuid}','#{timestamp.strftime('%Y-%m-%d %H:%M:%S')}',#{cond[:is_sitting]},'#{cond[:condition]}','#{cond[:message]}')"
+        end
 
-      sql = "INSERT INTO `isu_condition` (`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`) VALUES #{values.join(",")}"
-      #puts sql
-      db.query(sql)
+        sql = "INSERT INTO `isu_condition` (`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`) VALUES #{values.join(",")}"
+        #puts sql
+        db.query(sql)
       #end
 
       status 202
