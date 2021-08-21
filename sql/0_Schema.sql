@@ -51,3 +51,8 @@ CREATE TABLE latest_isu_condition_id (
 CREATE TRIGGER tr1 AFTER INSERT ON isu_condition FOR EACH ROW
   REPLACE INTO latest_isu_condition_id (id, jia_isu_uuid) VALUES (NEW.id, NEW.jia_isu_uuid);
 
+CREATE OR REPLACE VIEW `latest_isu_condition` AS (
+select `isu_condition`.`id` AS `id`,`isu_condition`.`jia_isu_uuid` AS `jia_isu_uuid`,`isu_condition`.`timestamp` AS `timestamp`,`isu_condition`.`is_sitting` AS `is_sitting`,`isu_condition`.`condition` AS `condition`,`isu_condition`.`message` AS `message`,`isu_condition`.`created_at` AS `created_at`
+from (`isu_condition` join `latest_isu_condition_id` on(`isu_condition`.`id` = `latest_isu_condition_id`.`id`))
+);
+
