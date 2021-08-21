@@ -53,6 +53,18 @@ module Isucondition
     SCORE_CONDITION_LEVEL_WARNING = 2
     SCORE_CONDITION_LEVEL_CRITICAL = 1
 
+    LEVEL_TO_SCORE = {
+      CONDITION_LEVEL_INFO      => SCORE_CONDITION_LEVEL_INFO,
+      CONDITION_LEVEL_WARNING   => SCORE_CONDITION_LEVEL_WARNING,
+      CONDITION_LEVEL_CRITICAL  => SCORE_CONDITION_LEVEL_CRITICAL,
+    }
+
+    SCORE_TO_LEVEL = {
+      SCORE_CONDITION_LEVEL_INFO      => CONDITION_LEVEL_INFO,
+      SCORE_CONDITION_LEVEL_WARNING   => CONDITION_LEVEL_WARNING,
+      SCORE_CONDITION_LEVEL_CRITICAL  => CONDITION_LEVEL_CRITICAL,
+    }
+
     set :session_secret, 'isucondition'
     set :sessions, key: SESSION_NAME
 
@@ -137,14 +149,7 @@ module Isucondition
       end
 
       def score_to_level(score)
-        case score
-        when 3
-          CONDITION_LEVEL_INFO
-        when 2
-          CONDITION_LEVEL_WARNING
-        else
-          CONDITION_LEVEL_CRITICAL
-        end
+        SCORE_TO_LEVEL[score]
       end
 
       # ISUのコンディションの文字列からコンディションレベルを計算
@@ -573,15 +578,17 @@ module Isucondition
 
     # ISUのコンディションをDBから取得
     def get_isu_conditions_from_db(jia_isu_uuid, end_time, condition_level, start_time, limit, isu_name)
+      scores = condition_level.map { |level| LEVEL_TO_SCORE[level] }
+
       conditions = if start_time.to_i == 0
         db.xquery(
-          'SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? AND `timestamp` < ? ORDER BY `timestamp` DESC',
+          "SELECT * FROM `isu_condition` WHERE `score` IN (#{scores.join(",")}) AND `jia_isu_uuid` = ? AND `timestamp` < ? ORDER BY `timestamp` DESC LIMIT #{limit}",
           jia_isu_uuid,
           end_time,
         )
       else
         db.xquery(
-          'SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? AND `timestamp` < ? AND ? <= `timestamp` ORDER BY `timestamp` DESC',
+          "SELECT * FROM `isu_condition` WHERE `score` IN (#{scores.join(",")}) `jia_isu_uuid` = ? AND `timestamp` < ? AND ? <= `timestamp` ORDER BY `timestamp` DESC LIMIT #{limit}",
           jia_isu_uuid,
           end_time,
           start_time,
