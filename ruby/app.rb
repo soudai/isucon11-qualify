@@ -635,7 +635,7 @@ module Isucondition
 
       res = []
       add_response = -> isu_ids {
-        conditions = db.query(sql.join(" UNION ")).to_a
+        conditions = sql.empty? ? [] : db.query(sql.join(" UNION ")).to_a
 
         conditions.each do |isu_last_condition|
           condition_level = calculate_condition_level(isu_last_condition.fetch(:condition))
