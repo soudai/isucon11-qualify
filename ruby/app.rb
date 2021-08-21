@@ -643,7 +643,7 @@ module Isucondition
       halt_error 400, 'bad request body' unless json_params.kind_of?(Array)
       halt_error 400, 'bad request body' if json_params.empty?
 
-      db_transaction do
+      #db_transaction do
         count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
         halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
 
@@ -660,7 +660,7 @@ module Isucondition
             cond.fetch(:message),
           )
         end
-      end
+      #end
 
       status 202
       ''
