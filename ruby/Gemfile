@@ -10,3 +10,5 @@ gem 'jwt'
 group :development do
   gem 'sinatra-contrib'
 end
+
+gem 'newrelic_rpm', require: false
