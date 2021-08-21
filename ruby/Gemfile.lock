@@ -10,6 +10,7 @@ GEM
       mysql2
     newrelic_rpm (7.2.0)
     nio4r (2.5.8)
+    oj (3.13.2)
     puma (5.4.0)
       nio4r (~> 2.0)
     rack (2.2.3)
@@ -37,6 +38,7 @@ DEPENDENCIES
   mysql2
   mysql2-cs-bind
   newrelic_rpm
+  oj
   puma
   sinatra
   sinatra-contrib
