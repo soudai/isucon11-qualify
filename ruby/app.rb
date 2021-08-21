@@ -588,7 +588,7 @@ module Isucondition
         )
       end
 
-      conditions_response = conditions.map do |c|
+      conditions_response = conditions.filter_map do |c|
         c_level = calculate_condition_level(c.fetch(:condition))
         if condition_level.include?(c_level)
           {
@@ -600,10 +600,8 @@ module Isucondition
             condition_level: c_level,
             message: c.fetch(:message),
           }
-        else
-          nil
         end
-      end.compact
+      end
 
       conditions_response = conditions_response[0, limit] if conditions_response.size > limit
       conditions_response
