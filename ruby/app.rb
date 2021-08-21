@@ -467,6 +467,7 @@ module Isucondition
         'is_overweight' => 0,
       }
       raw_score = 0
+      sitting_count = 0
 
       isu_conditions.each do |condition|
         bad_conditions_count = 0
@@ -491,10 +492,7 @@ module Isucondition
         else
           raw_score += SCORE_CONDITION_LEVEL_INFO
         end
-      end
 
-      sitting_count = 0
-      isu_conditions.each do |condition|
         sitting_count += 1 if condition.fetch(:is_sitting)
       end
 
@@ -591,42 +589,94 @@ module Isucondition
 
     # ISUの性格毎の最新のコンディション情報
     get '/api/trend' do
-      character_list = db.query('SELECT `character` FROM `isu` GROUP BY `character`')
+       #character_list = db.query('SELECT `character` FROM `isu` GROUP BY `character`')
+       #
+       #res = character_list.map do |character|
+       #  isu_list = db.xquery('SELECT `id`, `jia_isu_uuid`, `name`, `character`, `jia_user_id`, `created_at`, `updated_at` FROM `isu` WHERE `character` = ?', character.fetch(:character))
+       #  character_info_isu_conditions = []
+       #  character_warning_isu_conditions = []
+       #  character_critical_isu_conditions = []
+       #
+       #  isu_list.each do |isu|
+       #    conditions = db.xquery('SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY timestamp DESC', isu.fetch(:jia_isu_uuid)).to_a
+       #    unless conditions.empty?
+       #      isu_last_condition = conditions.first
+       #      condition_level = calculate_condition_level(isu_last_condition.fetch(:condition))
+       #      trend_condition = { isu_id: isu.fetch(:id), timestamp: isu_last_condition.fetch(:timestamp).to_i }
+       #      case condition_level
+       #      when 'info'
+       #        character_info_isu_conditions.push(trend_condition)
+       #      when 'warning'
+       #        character_warning_isu_conditions.push(trend_condition)
+       #      when 'critical'
+       #        character_critical_isu_conditions.push(trend_condition)
+       #      end
+       #    end
+       #  end
+       #
+       #  character_info_isu_conditions.sort! { |a,b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
+       #  character_warning_isu_conditions.sort! { |a,b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
+       #  character_critical_isu_conditions.sort! { |a,b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
+       #
+       #  {
+       #    character: character.fetch(:character),
+       #    info: character_info_isu_conditions,
+       #    warning: character_warning_isu_conditions,
+       #    critical: character_critical_isu_conditions,
+       #  }
+       #end
 
-      res = character_list.map do |character|
-        isu_list = db.xquery('SELECT `id`, `jia_isu_uuid`, `name`, `character`, `jia_user_id`, `created_at`, `updated_at` FROM `isu` WHERE `character` = ?', character.fetch(:character))
-        character_info_isu_conditions = []
-        character_warning_isu_conditions = []
-        character_critical_isu_conditions = []
+      character = nil
+      character_info_isu_conditions = []
+      character_warning_isu_conditions = []
+      character_critical_isu_conditions = []
 
-        isu_list.each do |isu|
-          conditions = db.xquery('SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY timestamp DESC', isu.fetch(:jia_isu_uuid)).to_a
-          unless conditions.empty?
-            isu_last_condition = conditions.first
-            condition_level = calculate_condition_level(isu_last_condition.fetch(:condition))
-            trend_condition = { isu_id: isu.fetch(:id), timestamp: isu_last_condition.fetch(:timestamp).to_i }
-            case condition_level
-            when 'info'
-              character_info_isu_conditions.push(trend_condition)
-            when 'warning'
-              character_warning_isu_conditions.push(trend_condition)
-            when 'critical'
-              character_critical_isu_conditions.push(trend_condition)
-            end
-          end
-        end
-
+      res = []
+      add_response = -> {
         character_info_isu_conditions.sort! { |a,b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
         character_warning_isu_conditions.sort! { |a,b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
         character_critical_isu_conditions.sort! { |a,b| b.fetch(:timestamp) <=> a.fetch(:timestamp) }
 
-        {
-          character: character.fetch(:character),
+        res << {
+          character: character,
           info: character_info_isu_conditions,
           warning: character_warning_isu_conditions,
           critical: character_critical_isu_conditions,
         }
+      }
+
+      isu_list = db.xquery('SELECT `id`, `jia_isu_uuid`, `name`, `character`, `jia_user_id`, `created_at`, `updated_at` FROM `isu` ORDER BY `character`')
+
+      isu_list.each do |isu|
+        character ||= isu[:character]
+
+        if character != isu[:character]
+          add_response.call
+
+          character = isu[:character]
+
+          character_info_isu_conditions = []
+          character_warning_isu_conditions = []
+          character_critical_isu_conditions = []
+        end
+
+        conditions = db.xquery('SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY timestamp DESC', isu.fetch(:jia_isu_uuid)).to_a
+        unless conditions.empty?
+          isu_last_condition = conditions.first
+          condition_level = calculate_condition_level(isu_last_condition.fetch(:condition))
+          trend_condition = { isu_id: isu.fetch(:id), timestamp: isu_last_condition.fetch(:timestamp).to_i }
+          case condition_level
+          when 'info'
+            character_info_isu_conditions.push(trend_condition)
+          when 'warning'
+            character_warning_isu_conditions.push(trend_condition)
+          when 'critical'
+            character_critical_isu_conditions.push(trend_condition)
+          end
+        end
       end
+
+      add_response.call
 
       content_type :json
       res.to_json
