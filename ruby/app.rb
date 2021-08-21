@@ -277,6 +277,10 @@ module Isucondition
             "INSERT INTO `isu` (`jia_isu_uuid`, `name`, `image`, `jia_user_id`) VALUES (?, ?, ?, ?)".b,
             jia_isu_uuid.b, isu_name.b, image, jia_user_id.b,
           )
+          File.open("cache/isu/#{jia_isu_uuid.b}", "w") { |file|
+            "set"
+          }
+
         rescue Mysql2::Error => e
           if e.error_number == MYSQL_ERR_NUM_DUPLICATE_ENTRY
             halt_error 409, "duplicated: isu"
@@ -646,6 +650,7 @@ module Isucondition
       #db_transaction do
         count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
         halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
+
 
         values = []
         json_params.each do |cond|
