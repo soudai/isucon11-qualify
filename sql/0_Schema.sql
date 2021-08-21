@@ -2,6 +2,8 @@ DROP TABLE IF EXISTS `isu_association_config`;
 DROP TABLE IF EXISTS `isu_condition`;
 DROP TABLE IF EXISTS `isu`;
 DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `latest_isu_condition_id`;
+DROP TRIGGER IF EXISTS `tr1`;
 
 CREATE TABLE `isu` (
   `id` bigint AUTO_INCREMENT,
@@ -40,12 +42,12 @@ CREATE TABLE `isu_association_config` (
   `url` VARCHAR(255) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4;
 
-CREATE OR REPLACE VIEW latest_isu_condition AS (
-  SELECT `id`, `jia_isu_uuid`, `timestamp`,
-         `is_sitting`, `condition`, `message`,
-         `created_at`
-  FROM (SELECT *, RANK() OVER (PARTITION BY jia_isu_uuid ORDER BY `timestamp` DESC) AS _rank 
-        FROM isu_condition) AS dummy 
-  WHERE _rank = 1
-);
+CREATE TABLE latest_isu_condition_id (
+  id bigint,
+  jia_isu_uuid CHAR(36),
+  PRIMARY KEY(jia_isu_uuid)
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4;
+
+CREATE TRIGGER tr1 AFTER INSERT ON isu_condition FOR EACH ROW
+  REPLACE INTO latest_isu_condition_id (id, jia_isu_uuid) VALUES (NEW.id, NEW.jia_isu_uuid);
 
