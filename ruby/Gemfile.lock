@@ -1,3 +1,17 @@
+GIT
+  remote: https://github.com/brianmario/mysql2.git
+  revision: 7f4e844fccf6afa888d0bd108d4707a2a7784484
+  specs:
+    mysql2 (0.5.3)
+
+GIT
+  remote: https://github.com/kamipo/mysql2-cs-bind.git
+  revision: cdee24b98f8df4b32b677a9ef351f671fdee3a2a
+  branch: perf
+  specs:
+    mysql2-cs-bind (0.1.0)
+      mysql2
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -5,9 +19,6 @@ GEM
     multi_json (1.15.0)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
-    mysql2 (0.5.3)
-    mysql2-cs-bind (0.1.0)
-      mysql2
     newrelic_rpm (7.2.0)
     nio4r (2.5.8)
     oj (3.13.2)
@@ -35,8 +46,8 @@ PLATFORMS
 
 DEPENDENCIES
   jwt
-  mysql2
-  mysql2-cs-bind
+  mysql2!
+  mysql2-cs-bind!
   newrelic_rpm
   oj
   puma
