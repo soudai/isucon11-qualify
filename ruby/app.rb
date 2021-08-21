@@ -182,6 +182,11 @@ module Isucondition
         jia_service_url,
       )
 
+      isu_list = db.xquery('SELECT jia_isu_uuid FROM isu').to_a
+      isu_list.each do |isu|
+        File.open("cache/isu/#{isu.jia_isu_uuid.b}", "w")
+      end
+
       content_type :json
       { language: 'ruby' }.to_json
     end
