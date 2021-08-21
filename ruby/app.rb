@@ -678,7 +678,7 @@ module Isucondition
         end
       end
 
-      add_responce.call
+      add_response.call
 
       content_type :json
       res.to_json
