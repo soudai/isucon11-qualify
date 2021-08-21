@@ -467,6 +467,7 @@ module Isucondition
         'is_overweight' => 0,
       }
       raw_score = 0
+      sitting_count = 0
 
       isu_conditions.each do |condition|
         bad_conditions_count = 0
@@ -491,10 +492,7 @@ module Isucondition
         else
           raw_score += SCORE_CONDITION_LEVEL_INFO
         end
-      end
 
-      sitting_count = 0
-      isu_conditions.each do |condition|
         sitting_count += 1 if condition.fetch(:is_sitting)
       end
 
