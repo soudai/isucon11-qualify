@@ -241,16 +241,6 @@ module Isucondition
       ''
     end
 
-    get '/hoge' do
-      content_type :json
-      { hoge: "fuga" }.to_json
-    end
-
-    get '/fuga' do
-      content_type :json
-      [ :hoge, :fuga ].to_json
-    end
-
     # サインインしている自分自身の情報を取得
     get '/api/user/me' do
       jia_user_id = user_id_from_session
