@@ -235,7 +235,7 @@ module Isucondition
       jia_user_id = user_id_from_session
       halt_error 401, 'you are not signed in' unless jia_user_id
 
-      response_list = db_transaction do
+      response_list = begin
         isu_list = db.xquery('SELECT `id`, `jia_isu_uuid`, `name`, `character`, `jia_user_id`, `created_at`, `updated_at` FROM `isu` WHERE `jia_user_id` = ? ORDER BY `id` DESC', jia_user_id)
         isu_list.map do |isu|
           last_condition = db.xquery('SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY `timestamp` DESC LIMIT 1', isu.fetch(:jia_isu_uuid)).first
