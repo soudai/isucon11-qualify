@@ -664,11 +664,11 @@ module Isucondition
       halt_error 400, 'bad request body' if json_params.empty?
 
       #db_transaction do
-      #   count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
-      #   halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
+        count = db.xquery('SELECT COUNT(*) AS `cnt` FROM `isu` WHERE `jia_isu_uuid` = ?', jia_isu_uuid).first
+        halt_error 404, 'not found: isu' if count.fetch(:cnt).zero?
 
       # fileが無かったら404を返す
-      halt_error 404, 'not found: isu' if ! File.exist?("cache/isu/#{jia_isu_uuid}")
+      # halt_error 404, 'not found: isu' if ! File.exist?("cache/isu/#{jia_isu_uuid}")
 
         values = []
         json_params.each do |cond|
