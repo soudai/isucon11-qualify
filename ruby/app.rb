@@ -500,19 +500,13 @@ module Isucondition
       sitting_count = 0
 
       isu_conditions.each do |condition|
-        bad_conditions_count = 0
-
         unless valid_condition_format?(condition.fetch(:condition))
           raise "invalid condition format"
         end
 
-        condition.fetch(:condition).split(',').each do |cond_str|
-          condition_name, value = cond_str.split('=')
-          if value == 'true'
-            conditions_count[condition_name] += 1
-            bad_conditions_count += 1
-          end
-        end
+        conditions_count['is_broken'] += condition.fetch(:is_broken)
+        conditions_count['is_dirty'] += condition.fetch(:is_dirty)
+        conditions_count['is_overweight'] += condition.fetch(:is_overweight)
 
         raw_score += condition.fetch(:score)
 
