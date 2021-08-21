@@ -475,7 +475,7 @@ module Isucondition
       index = 0
       this_time = graph_date
 
-      while this_time < (graph_date + (3600*24))
+      while this_time < end_time
         data = nil
         timestamps = []
         if index < filtered_data_points.size
