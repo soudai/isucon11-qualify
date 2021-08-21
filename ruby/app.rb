@@ -6,6 +6,10 @@ require 'uri'
 require 'mysql2'
 require 'mysql2-cs-bind'
 
+# newrelic start
+require 'newrelic_rpm' if ENV['NEW_RELIC_AGENT_ENABLED']
+# newrelic end
+
 module Isucondition
   class App < Sinatra::Base
     configure :development do
